@@ -1,6 +1,7 @@
 #include  <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "defines.h"
 
 // typedef double double;
@@ -28,16 +29,18 @@ void matrix_free(matrix m) {
     free(m.values);
 }
 
-// Creates a new matrix that is identical to input matrix
-matrix matrix_copy(matrix in) {
-    matrix out = matrix_create(in.row, in.col);
+// Copies in to out
+void matrix_copy(matrix in, matrix out) {
+    if(in.row != out.row || in.col != out.col) {
+        printf("Incorrect matrix dimensions [copy]\n");
+        printf("[%d %d] [%d %d]\n", in.row, in.col, out.row, out.col);
+        exit(1);
+    }
 
     for(int i = 0; i < in.row; i++) {
         for(int j = 0; j < in.col; j++)
             out.values[i][j] = in.values[i][j];
     }
-
-    return out;
 }
 
 // Prints the matrix
@@ -51,6 +54,14 @@ void matrix_print(matrix a, char *msg) {
     printf("\n");
 }
 
+void matrix_fill(matrix in, double value) {
+    for(int i = 0; i < in.row; i++) 
+        for(int j = 0; j < in.col; j++)
+            in.values[i][j] = value; 
+    // bzero()
+    
+    // memset(in.values, 0, sizeof(in.values[0][0]) * in.row * in.col);
+}
 
 // Adds matrix a with b and stores it in c
 void matrix_add(matrix a, matrix b, matrix c) {

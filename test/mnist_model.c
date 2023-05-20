@@ -31,7 +31,7 @@ double mnist_evaluate(network net, dataset test) {
         if(actual_max == expected_max)
             accuracy++;
 
-        matrix_free(actual_y);
+        // matrix_free(actual_y);
     }
 
     return (double) accuracy / test.size;
@@ -82,13 +82,13 @@ int main() {
 
     int layers[] = {784, 30, 10};
     network net = network_create(layers, 3, matrix_sigmoid, matrix_sigmoid_prime);
-    int train_size = 60000, test_size = 5000;
+    int train_size = 10000, test_size = 5000;
     dataset test, train;
     convert_to_matrix(train_size, test_size, &test, &train);
     printf("Loaded mnist dataset\n");
 
-//     network_stochastic_gradient_descent(net, train, 40, 50, 2.5, test, mnist_evaluate);
-    network_stochastic_gradient_descent(net, train, 1, 1, 3.0, test, mnist_evaluate);
+    // network_stochastic_gradient_descent(net, train, 40, 50, 2.5, test, mnist_evaluate);
+    network_stochastic_gradient_descent(net, train, 4, 30, 3.0, test, mnist_evaluate);
 
     // matrix_print(network_feed_forward(net, test.x[100]), "test");
     // matrix_print(test.y[2], "result");
@@ -160,4 +160,28 @@ Epoch 12: 93.280000, time: 18.542397
 Epoch 13: 93.360000, time: 18.547516
 Epoch 14: 93.400000, time: 18.469518
 Epoch 15: 93.440000, time: 18.550860
+
+After removing malloc and free from backprop
+Epoch 0: 86.500000, time: 16.057375
+Epoch 1: 89.620000, time: 13.142268
+Epoch 2: 90.820000, time: 13.139444
+Epoch 3: 91.520000, time: 13.141751
+Epoch 4: 91.780000, time: 13.138698
+Epoch 5: 92.160000, time: 13.143167
+Epoch 6: 92.480000, time: 13.141336
+Epoch 7: 92.780000, time: 13.143494
+Epoch 8: 92.820000, time: 13.135197
+Epoch 9: 93.080000, time: 13.139074
+
+
+
+Epoch 0: 86.500000, time: 16.048770
+Epoch 1: 89.620000, time: 13.140971
+Epoch 2: 90.820000, time: 13.137055
+Epoch 3: 91.520000, time: 13.130475
+Epoch 4: 91.780000, time: 13.097974
+Epoch 5: 92.160000, time: 13.069101
+Epoch 6: 92.480000, time: 13.181079
+Epoch 7: 92.780000, time: 13.197024
+
 */
