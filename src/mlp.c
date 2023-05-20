@@ -3,11 +3,8 @@
 #include <stdbool.h>
 #include <time.h>
 #include "matrix.h"
+// #include "defines.h"
 
-typedef struct _network {
-    int layer_count, *layers;
-    matrix *biases, *weights;
-} network;
 
 // Create a mlp neural netwrok
 network network_create(int *layers, int count) {
@@ -72,25 +69,13 @@ network network_backpropogate(network net, matrix x, matrix y) {
     // z = weight * activation + b
     // activation = sigmoid(z)
     for (int i = 0; i < net.layer_count - 1; i++) {
-        // printf("zs: %d\n", i);
         zs[i] = matrix_create(net.weights[i].row, activation.col);
-
-        // matrix_print(net.weights[i], "weight");
-        // matrix_print(activation, "activation");
         matrix_multiply(net.weights[i], activation, zs[i]);
-        // matrix_print(zs[i], "zs[i] mult");
-        
-
         matrix_add(zs[i], net.biases[i], zs[i]);
-        // matrix_print(zs[i], "zs[i] add");
 
         activation = matrix_create(zs[i].row, zs[i].col);
         matrix_sigmoid(zs[i], activation);
-        // matrix_print(activation, "activation sig");
         activations[i + 1] = activation;
-        // matrix_print(activation, "out");
-
-
     }
 
     // Calculates delta
@@ -109,17 +94,8 @@ network network_backpropogate(network net, matrix x, matrix y) {
     matrix_multiply(delta, temp, nabla_w[net.layer_count - 2]);
     matrix_free(temp);
     matrix_free(activations[net.layer_count - 2]);
-    // matrix_free(delta);
-
-    // printf("hai\n");
-    //     for(int i = 0; i < 2; i++)
-    //     matrix_print(nabla_b[i], "b");
-
-    // for(int i = 0; i < 2; i++)
-    //     matrix_print(nabla_w[i], "w");
 
     for(int i = net.layer_count - 3; i >= 0; i--) {
-        // delta = matrix_create(zs[i].row, zs[i].col);
         temp = matrix_create(net.weights[i + 1].col, net.weights[i + 1].row);
         matrix_sigmoid_prime(zs[i], zs[i]);
         matrix_transpose(net.weights[i + 1], temp);
@@ -133,8 +109,6 @@ network network_backpropogate(network net, matrix x, matrix y) {
         matrix_transpose(activations[i], temp);
         matrix_multiply(delta, temp, nabla_w[i]);
 
-        // printf("hai\n");
-
         matrix_free(temp);
         matrix_free(zs[i]);
         matrix_free(activations[i]);
@@ -143,12 +117,6 @@ network network_backpropogate(network net, matrix x, matrix y) {
     network n;
     n.biases = nabla_b;
     n.weights = nabla_w;
-
-    // for(int i = 0; i < 2; i++)
-    //     matrix_print(nabla_b[i], "b");
-
-    // for(int i = 0; i < 2; i++)
-    //     matrix_print(nabla_w[i], "w");
 
     return n;
 }
@@ -167,10 +135,8 @@ void network_update_mini_batch(network net, dataset train,
 
     for(int i = batch_start; i < batch_start + batch_len; i++) {
         delta = network_backpropogate(net, train.x[i], train.y[i]);
-        // printf("back\n");
 
         for (int j = 0; j < net.layer_count - 1; j++) {
-            // printf("||%d||\n", j);
             matrix_add(nabla_b[j], delta.biases[j], nabla_b[j]);
             matrix_add(nabla_w[j], delta.weights[j], nabla_w[j]);
             matrix_free(delta.biases[j]);
@@ -191,8 +157,6 @@ void network_update_mini_batch(network net, dataset train,
 
         matrix_free(nabla_b[i]);
         matrix_free(nabla_w[i]);
-
-        // matrix_print(net.biases[i]);
     }
 
     free(nabla_b);
@@ -210,16 +174,16 @@ void network_stochastic_gradient_descent(network net, dataset train, int epochs,
     }
 
     for(int i = 0; i < epochs; i++) {
-        // printf("ts %d, bs %d\n", train.size, batch_size);
         clock_t tic = clock();
-        for(int j = 0; j < train.size; j += batch_size) {
+
+        for(int j = 0; j < train.size; j += batch_size)
             network_update_mini_batch(net, train, j, batch_size, learning_rate);
-        }
+
         clock_t toc = clock();
 
         if(test_set_avaliable) {
             accuracy = evaluate(net, test);
-            printf("Epoch %d: %f, time: %lf\n", i, accuracy * 100, (toc - tic) / CLOCKS_PER_SEC);
+            printf("Epoch %d: %f, time: %lf\n", i, accuracy * 100, (double) (toc - tic) / CLOCKS_PER_SEC);
         }
         else
             printf("Epoch %d completed\n", i);

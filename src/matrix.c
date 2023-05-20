@@ -1,31 +1,22 @@
 #include  <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "defines.h"
 
-typedef long double matrix_data_type;
+// typedef double double;
 
-typedef struct _matrix {
-    int row, col; 
-    matrix_data_type **values;
-} matrix;
 
-typedef struct _dataset {
-    int size;
-    matrix *x, *y;
-} dataset;
-
-// TODO:: Change double to long double via macro
+// TODO:: Change double to double via macro
 
 // Creates a matrix of order row x col
 matrix matrix_create(int row, int col) {
     matrix m;
     m.row = row;
     m.col = col;
-    m.values = malloc(row * sizeof(matrix_data_type*));
+    m.values = malloc(row * sizeof(double*));
 
     for(int i = 0; i < row; i++)
-        m.values[i] = calloc(col, sizeof(matrix_data_type));
-    
+        m.values[i] = calloc(col, sizeof(double));
 
     return m;
 }
@@ -54,7 +45,7 @@ void matrix_print(matrix a, char *msg) {
     printf("%s\tR: %d\tC: %d\n", msg, a.row, a.col);
     for(int i = 0; i < a.row; i++) {
         for(int j = 0; j < a.col; j++) 
-            printf("%Lf ", a.values[i][j]);
+            printf("%f ", a.values[i][j]);
         printf("\n");
     }       
     printf("\n");
@@ -98,7 +89,7 @@ void matrix_sub(matrix a, matrix b, matrix c) {
 }
 
 // Multiply all elements of matrix a with given scalar
-void matrix_scalar_multiply(matrix a, matrix_data_type scalar, matrix b) {
+void matrix_scalar_multiply(matrix a, double scalar, matrix b) {
     if(a.values == NULL) {
         printf("Matrices should not be null [scalar_multiplication]");
         exit(1);
@@ -188,7 +179,7 @@ void matrix_sigmoid(matrix in, matrix out) {
 
     for(int i = 0; i < in.row; i++) {
         for(int j = 0; j < in.col; j++) 
-            out.values[i][j] = 1.0 /  (1.0 + expl(-in.values[i][j]));
+            out.values[i][j] = 1.0 /  (1.0 + exp(-in.values[i][j]));
     }
 }
 
@@ -203,12 +194,12 @@ void matrix_sigmoid_prime(matrix in, matrix out) {
         exit(1);
     }
 
-    matrix_data_type epow;
+    double epow;
 
     for(int i = 0; i < in.row; i++) {
         for(int j = 0; j < in.col; j++) {
-            epow = expl(-in.values[i][j]);
-            out.values[i][j] = epow / powl(1.0 + epow, 2.0);
+            epow = exp(-in.values[i][j]);
+            out.values[i][j] = epow / pow(1.0 + epow, 2.0);
         }
     }
 }
@@ -226,7 +217,7 @@ void matrix_random(matrix m, float start, float end) {
     for(int i = 0; i < m.row; i++) {
         for(int j = 0; j < m.col; j++) {
             // double a =  (end - start);
-            m.values[i][j] = start + ((matrix_data_type)rand() / RAND_MAX) * (end - start);
+            m.values[i][j] = start + ((double)rand() / RAND_MAX) * (end - start);
             // printf("%f\n", a);
         }
     }

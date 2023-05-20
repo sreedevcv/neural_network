@@ -4,7 +4,7 @@
 #include <time.h>
 #include <math.h>
 #include "../src/matrix.h"
-#include "../src/mlp.h"
+// #include "../src/mlp.h"
 
 bool test_addition() {
     int row = 3, col = 4, count = 0;
@@ -36,16 +36,16 @@ bool test_addition() {
 }
 
 
-void test_create_network() {
-    int layers[] = {3, 4, 4, 2};
-    network n = network_create(layers, 4);
+// void test_create_network() {
+//     int layers[] = {3, 4, 4, 2};
+//     network n = network_create(layers, 4);
 
-    for(int i = 0; i < 3; i++)
-        matrix_print(n.biases[i], "");
+//     for(int i = 0; i < 3; i++)
+//         matrix_print(n.biases[i], "");
 
-    for(int i = 0; i < 3; i++)
-        matrix_print(n.weights[i], "");
-}
+//     for(int i = 0; i < 3; i++)
+//         matrix_print(n.weights[i], "");
+// }
 
 int main()
 {
@@ -65,7 +65,8 @@ int main()
     // matrix_sigmoid(a,a );
     // matrix_print(a);
 
-    printf("%f\n", 1.0 /  (1.0 + exp(-10.669294)));
+    // printf("%f\n", 1.0 /  (1.0 + exp(-10.669294)));
+    test_addition();
 
     return 0;
 }
@@ -76,4 +77,4 @@ int main()
     // printf("%ld\n", sizeof(long double));
     // printf("%ld",  sizeof(__float128));
 
-    // gcc -Wall -Wextra -g test/test_matrix.c src/matrix.c src/mlp.c -lm  
+    // gcc -Wall -Wextra -g test/test_matrix.c src/matrix.c src/mlp.c -lm

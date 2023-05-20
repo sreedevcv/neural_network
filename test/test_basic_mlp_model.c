@@ -30,6 +30,16 @@ void create_polynomial_data(int data_size, int features, matrix **x_set, matrix 
 }
 
 int main() {
+    for(int i = 0; i <50; i++) {
+        // _train.x[i] = malloc(sizeof(matrix));s
+        // _train.x[i] = matrix_create(784 , 1);
+        // _train.y[i] = matrix_create(10, 1);
+        // printf("%d %d\n", _train.x[i].row, _train.x[i].col);
+
+        matrix a = matrix_create(10 , 10);
+        // matrix b = matrix_create(10, 1);
+        printf("%d %d\n", a.row, a.col);
+    }
     // int layers[] = {3, 4, 1};
     // network net = network_create(layers, sizeof(layers) / sizeof(layers[0]));
     // matrix *x_set, * y_set;

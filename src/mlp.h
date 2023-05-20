@@ -3,11 +3,6 @@
 
 #include "matrix.h"
 
-typedef struct _network {
-    int layer_count, *layers;
-    matrix *biases, *weights;
-} network;
-
 network network_create(int *layers, int count);
 matrix network_feed_forward(network net, matrix input);
 network network_backpropogate(network net, matrix x, matrix y);

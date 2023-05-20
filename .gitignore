@@ -1,6 +1,9 @@
 .vscode/
+.kdev4/
 mt
 a.out
 network.ipynb
 r.txt
 nn.py
+mlp.kdev4
+..gitignore.kate-swp
