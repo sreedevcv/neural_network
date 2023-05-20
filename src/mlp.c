@@ -7,12 +7,15 @@
 
 
 // Create a mlp neural netwrok
-network network_create(int *layers, int count) {
+network network_create(int *layers, int count, void (*activation) (matrix, matrix), void (*activation_prime) (matrix, matrix)) {
+    // TODO:: Add activation func to the struct
     network net;
     net.layer_count = count;
     net.layers = layers;
     net.biases = malloc((count - 1) * sizeof(matrix));
     net.weights = malloc((count - 1) * sizeof(matrix));
+    net.activation = activation;
+    net.activation_prime = activation_prime;
 
     for(int i = 0; i < count - 1; i++) {
         net.biases[i] = matrix_create(layers[i + 1], 1);
@@ -34,8 +37,7 @@ matrix network_feed_forward(network net, matrix input) {
         out = matrix_create(net.weights[i].row, in.col);
         matrix_multiply(net.weights[i], in, out);
         matrix_add(out, net.biases[i], out);
-        matrix_sigmoid(out, out);
-
+        net.activation(out, out);
         matrix_free(in);
         in = out;
     }
@@ -47,6 +49,7 @@ void cost_derivative(matrix output_activation, matrix y, matrix out) {
     matrix_sub(output_activation, y, out);
 }
 
+// TODO:: Avoid repeated allocations and deallocations of nabla_b, nabla_w, etc. as they can be reused
 network network_backpropogate(network net, matrix x, matrix y) {
     matrix *nabla_b = malloc((net.layer_count - 1) * sizeof(matrix));
     matrix *nabla_w = malloc((net.layer_count - 1) * sizeof(matrix));
@@ -65,30 +68,33 @@ network network_backpropogate(network net, matrix x, matrix y) {
 
     activations[0] = activation;
 
-    // Finds the activation and z values of each layer
-    // z = weight * activation + b
-    // activation = sigmoid(z)
+    /* Finds the activation and z values of each layer
+    * z = weight * activation + b
+    * activation = sigmoid(z)
+    */
     for (int i = 0; i < net.layer_count - 1; i++) {
         zs[i] = matrix_create(net.weights[i].row, activation.col);
         matrix_multiply(net.weights[i], activation, zs[i]);
         matrix_add(zs[i], net.biases[i], zs[i]);
 
         activation = matrix_create(zs[i].row, zs[i].col);
-        matrix_sigmoid(zs[i], activation);
+        net.activation(zs[i], activation);
         activations[i + 1] = activation;
     }
 
-    // Calculates delta
-    // delta = cost_derivative(final_activation, y) * sigmoid_pirme(final_z)
+    /* Calculates delta
+    * delta = cost_derivative(final_activation, y) * sigmoid_pirme(final_z)
+    */
     cost_derivative(activations[net.layer_count - 1], y, delta);
-    matrix_sigmoid_prime(zs[net.layer_count - 2], temp);
+    net.activation_prime(zs[net.layer_count - 2], temp);
     matrix_dot(delta, temp, delta);
     matrix_free(temp);
 
-    // TODO::current valus of nabla_b is replaced and not deallocated
+    // DONE::current valus of nabla_b is replaced and not deallocated
+    matrix_free(nabla_b[net.layer_count - 2]);
     nabla_b[net.layer_count - 2] = delta;
 
-    // last_nabla_w = delta * transpose(penultimate_activation)
+    /* last_nabla_w = delta * transpose(penultimate_activation) */
     temp = matrix_create(activations[net.layer_count - 2].col, activations[net.layer_count - 2].row);
     matrix_transpose(activations[net.layer_count - 2], temp);
     matrix_multiply(delta, temp, nabla_w[net.layer_count - 2]);
@@ -97,12 +103,13 @@ network network_backpropogate(network net, matrix x, matrix y) {
 
     for(int i = net.layer_count - 3; i >= 0; i--) {
         temp = matrix_create(net.weights[i + 1].col, net.weights[i + 1].row);
-        matrix_sigmoid_prime(zs[i], zs[i]);
+        net.activation_prime(zs[i], zs[i]);
         matrix_transpose(net.weights[i + 1], temp);
         matrix_multiply(temp, delta, nabla_b[i]);
 
         matrix_dot(nabla_b[i], zs[i], nabla_b[i]);
         matrix_free(temp);
+//         matrix_free(delta);
 
         delta = nabla_b[i];
         temp = matrix_create(activations[i].col, activations[i].row);
@@ -121,6 +128,7 @@ network network_backpropogate(network net, matrix x, matrix y) {
     return n;
 }
 
+/* Runs backpropogation algorithm on a of the entire training set */
 void network_update_mini_batch(network net, dataset train,
     int batch_start, int batch_len, double learning_rate) {
 
@@ -141,7 +149,6 @@ void network_update_mini_batch(network net, dataset train,
             matrix_add(nabla_w[j], delta.weights[j], nabla_w[j]);
             matrix_free(delta.biases[j]);
             matrix_free(delta.weights[j]);
-
         }
 
         free(delta.biases);
@@ -163,6 +170,7 @@ void network_update_mini_batch(network net, dataset train,
     free(nabla_w);
 }
 
+/* Trains a network using the stochastic gradient descent method */
 void network_stochastic_gradient_descent(network net, dataset train, int epochs, 
     int batch_size, double learning_rate, dataset test, double (*evaluate) (network, dataset)) {
     

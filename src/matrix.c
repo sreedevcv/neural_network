@@ -216,9 +216,7 @@ void matrix_random(matrix m, float start, float end) {
 
     for(int i = 0; i < m.row; i++) {
         for(int j = 0; j < m.col; j++) {
-            // double a =  (end - start);
             m.values[i][j] = start + ((double)rand() / RAND_MAX) * (end - start);
-            // printf("%f\n", a);
         }
     }
 }

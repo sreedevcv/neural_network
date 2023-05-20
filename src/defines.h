@@ -14,6 +14,8 @@ typedef struct _dataset {
 typedef struct _network {
     int layer_count, *layers;
     matrix *biases, *weights;
+    void (*activation) (matrix in, matrix out);
+    void (*activation_prime) (matrix in, matrix out);
 } network;
 
 #endif

@@ -30,9 +30,9 @@ double mnist_evaluate(network net, dataset test) {
 
         if(actual_max == expected_max)
             accuracy++;
-    }
 
-    // printf("acc: %f\n", (double) accuracy / test.size);
+        matrix_free(actual_y);
+    }
 
     return (double) accuracy / test.size;
 }
@@ -77,32 +77,18 @@ void convert_to_matrix(int train_size, int test_size, dataset *test, dataset *tr
     *train = _train;
 }
 
-struct temp
-{
-    int a, b;
-    char c;
-};
-
-struct temp func() {
-    struct temp k;
-    k.a = 12;
-    k.b = 13;
-    k.c = 'k';
-    return k;
-}
 int main() {
 	load_mnist();
 
     int layers[] = {784, 30, 10};
-    // network net = network_create(layers, 3);
-    int train_size = 5000, test_size = 5000;
-    // int train_size = 5, test_size = 5;
+    network net = network_create(layers, 3, matrix_sigmoid, matrix_sigmoid_prime);
+    int train_size = 60000, test_size = 5000;
     dataset test, train;
     convert_to_matrix(train_size, test_size, &test, &train);
-    printf("Hai\n");
+    printf("Loaded mnist dataset\n");
 
-    // network_stochastic_gradient_descent(net, train, 1, 50, 3.0, test, mnist_evaluate);
-    // network_stochastic_gradient_descent(net, train, 1, 1, 3.0, test, mnist_evaluate);
+//     network_stochastic_gradient_descent(net, train, 40, 50, 2.5, test, mnist_evaluate);
+    network_stochastic_gradient_descent(net, train, 1, 1, 3.0, test, mnist_evaluate);
 
     // matrix_print(network_feed_forward(net, test.x[100]), "test");
     // matrix_print(test.y[2], "result");
@@ -155,4 +141,23 @@ Epoch 38: 85.000000
 Epoch 39: 85.000000
 
 py: 9426 / 10000
+*/
+
+/*
+Epoch 0: 86.740000, time: 21.326435
+Epoch 1: 89.800000, time: 18.566099
+Epoch 2: 90.780000, time: 18.492725
+Epoch 3: 91.220000, time: 18.527351
+Epoch 4: 91.680000, time: 18.506668
+Epoch 5: 92.040000, time: 18.545433
+Epoch 6: 92.260000, time: 18.440934
+Epoch 7: 92.500000, time: 18.488570
+Epoch 8: 92.640000, time: 18.596878
+Epoch 9: 92.800000, time: 18.690502
+Epoch 10: 92.980000, time: 18.543569
+Epoch 11: 93.140000, time: 18.697627
+Epoch 12: 93.280000, time: 18.542397
+Epoch 13: 93.360000, time: 18.547516
+Epoch 14: 93.400000, time: 18.469518
+Epoch 15: 93.440000, time: 18.550860
 */
