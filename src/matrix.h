@@ -9,7 +9,6 @@ matrix matrix_create(int row, int col);
 void matrix_free(matrix m);
 void matrix_copy(matrix in, matrix out);
 void matrix_print(matrix a, char *msg);
-void matrix_fill(matrix in, double value);
 
 void matrix_add(matrix a, matrix b, matrix c);
 void matrix_sub(matrix a, matrix b, matrix c);

@@ -4,16 +4,16 @@
 #include <time.h>
 #include "matrix.h"
 
-matrix *TRNPS_ACTIVATION;
-matrix *TRNPS_WEIGHTS;
-matrix *ACTIVATIONS;
+matrix *TRNPS_ACTIVATION;   /* Transpose of the activations of each layer */
+matrix *TRNPS_WEIGHTS;      /* Transpose of weights of each layer */
+matrix *ACTIVATIONS;        /* Activation of each layer */
 matrix *NABLA_B;
 matrix *NABLA_W;
 matrix *N_B;
 matrix *N_W;
 matrix *ZS;
 
-// Create a mlp neural netwrok
+/* Create a mlp neural netwrok */
 network network_create(int *layers, int count, void (*activation) (matrix, matrix), void (*activation_prime) (matrix, matrix)) {
     network net;
     net.layer_count = count;
@@ -34,9 +34,9 @@ network network_create(int *layers, int count, void (*activation) (matrix, matri
     return net;
 }
 
-// Feeds the given input through the layer
+/* Feeds the given input through the layer */
 matrix network_feed_forward(network net, matrix input) {
-    matrix out, in;
+    matrix out;
     matrix_copy(input, ACTIVATIONS[0]);
 
     for(int i = 0; i < net.layer_count - 1; i++) {
@@ -44,17 +44,17 @@ matrix network_feed_forward(network net, matrix input) {
         matrix_multiply(net.weights[i], ACTIVATIONS[i], out);
         matrix_add(out, net.biases[i], out);
         net.activation(out, out);
-        in = out;
     }
 
     return out;
 }
 
+/* Derivative of cost function (diffrence squared) */
 void cost_derivative(matrix output_activation, matrix y, matrix out) {
     matrix_sub(output_activation, y, out);
 }
 
-// TODO:: Avoid repeated allocations and deallocations of NABLA_B, NABLA_W, etc. as they can be reused
+/* Calculates NABLA_B and NABLA_W */
 void network_backpropogate(network net, matrix x, matrix y) {
     matrix temp = matrix_create(y.row, y.col), delta;
     matrix_copy(x, ACTIVATIONS[0]);
@@ -126,10 +126,11 @@ void network_update_mini_batch(network net, dataset train,
     }
 }
 
+
 /* Trains a network using the stochastic gradient descent method */
-void network_stochastic_gradient_descent(network net, dataset train, int epochs, 
+void network_stochastic_gradient_descent(network net, dataset train, int epochs,
     int batch_size, double learning_rate, dataset test, double (*evaluate) (network, dataset)) {
-    
+
     bool test_set_avaliable = false;
     int b_size;
     double accuracy;
@@ -137,6 +138,7 @@ void network_stochastic_gradient_descent(network net, dataset train, int epochs,
     if(test.x != NULL && test.y != NULL && evaluate != NULL) {
         test_set_avaliable = true;
     }
+
     TRNPS_ACTIVATION = malloc((net.layer_count) * sizeof(matrix));
     TRNPS_WEIGHTS = malloc((net.layer_count - 1) * sizeof(matrix));
     ACTIVATIONS = malloc((net.layer_count) * sizeof(matrix));
@@ -164,8 +166,7 @@ void network_stochastic_gradient_descent(network net, dataset train, int epochs,
         clock_t tic = clock();
 
         for(int j = 0; j < train.size; j += batch_size) {
-            b_size = j + batch_size < train.size ? batch_size : train.size - j; 
-            // printf("%d %d\n", j, b_size);
+            b_size = j + batch_size < train.size ? batch_size : train.size - j;
             network_update_mini_batch(net, train, j, b_size, learning_rate);
         }
 
@@ -173,7 +174,7 @@ void network_stochastic_gradient_descent(network net, dataset train, int epochs,
 
         if(test_set_avaliable) {
             accuracy = evaluate(net, test);
-            printf("Epoch %d: %f, time: %lf\n", i, accuracy * 100, (double) (toc - tic) / CLOCKS_PER_SEC);
+            printf("Epoch %d, [%f], time: %lf sec\n", i, accuracy * 100, (double) (toc - tic) / CLOCKS_PER_SEC);
         }
         else
             printf("Epoch %d completed\n", i);
@@ -191,7 +192,7 @@ void network_stochastic_gradient_descent(network net, dataset train, int epochs,
         matrix_free(N_W[i]);
         matrix_free(ZS[i]);
     }
-    
+
     free(TRNPS_ACTIVATION);
     free(TRNPS_WEIGHTS);
     free(ACTIVATIONS);

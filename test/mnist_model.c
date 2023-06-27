@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <time.h>
 #include "mnist.h"
 #include "../src/mlp.h"
 
@@ -30,8 +31,6 @@ double mnist_evaluate(network net, dataset test) {
 
         if(actual_max == expected_max)
             accuracy++;
-
-        // matrix_free(actual_y);
     }
 
     return (double) accuracy / test.size;
@@ -72,22 +71,22 @@ void convert_to_matrix(int train_size, int test_size, dataset *test, dataset *tr
         _test.y[i].values[test_label[i]][0] = 1.0;
     }
 
-
     *test = _test;
     *train = _train;
 }
 
 int main() {
 	load_mnist();
-
+    srand(time(0));
     int layers[] = {784, 30, 10};
     network net = network_create(layers, 3, matrix_sigmoid, matrix_sigmoid_prime);
-    int train_size = 10000, test_size = 5000;
+    int train_size = 60000, test_size = 10000;
     dataset test, train;
     convert_to_matrix(train_size, test_size, &test, &train);
     printf("Loaded mnist dataset\n");
 
-    // network_stochastic_gradient_descent(net, train, 40, 50, 2.5, test, mnist_evaluate);
+
+//     network_stochastic_gradient_descent(net, train, 40, 50, 1.0, test, mnist_evaluate);
     network_stochastic_gradient_descent(net, train, 4, 30, 3.0, test, mnist_evaluate);
 
     // matrix_print(network_feed_forward(net, test.x[100]), "test");
@@ -184,4 +183,48 @@ Epoch 5: 92.160000, time: 13.069101
 Epoch 6: 92.480000, time: 13.181079
 Epoch 7: 92.780000, time: 13.197024
 
+*/
+
+/*
+network_stochastic_gradient_descent(net, train, 40, 50, 1.0, test, mnist_evaluate);
+Epoch 0, [84.750000], time: 2.927666 sec
+Epoch 1, [89.270000], time: 2.928950 sec
+Epoch 2, [90.840000], time: 2.935688 sec
+Epoch 3, [91.850000], time: 2.935794 sec
+Epoch 4, [92.380000], time: 2.936768 sec
+Epoch 5, [92.830000], time: 2.937061 sec
+Epoch 6, [93.140000], time: 2.938567 sec
+Epoch 7, [93.290000], time: 2.939554 sec
+Epoch 8, [93.450000], time: 2.980682 sec
+Epoch 9, [93.690000], time: 3.080716 sec
+Epoch 10, [93.800000], time: 3.043722 sec
+Epoch 11, [93.900000], time: 2.972642 sec
+Epoch 12, [94.030000], time: 2.933663 sec
+Epoch 13, [94.260000], time: 2.932719 sec
+Epoch 14, [94.330000], time: 2.942734 sec
+Epoch 15, [94.420000], time: 2.944672 sec
+Epoch 16, [94.510000], time: 2.962797 sec
+Epoch 17, [94.550000], time: 2.928447 sec
+Epoch 18, [94.630000], time: 3.009058 sec
+Epoch 19, [94.700000], time: 2.933164 sec
+Epoch 20, [94.760000], time: 3.052855 sec
+Epoch 21, [94.770000], time: 3.002120 sec
+Epoch 22, [94.800000], time: 3.164965 sec
+Epoch 23, [94.850000], time: 2.928945 sec
+Epoch 24, [94.840000], time: 2.928599 sec
+Epoch 25, [94.860000], time: 2.997378 sec
+Epoch 26, [94.910000], time: 3.245240 sec
+Epoch 27, [94.920000], time: 3.343054 sec
+Epoch 28, [94.950000], time: 3.057187 sec
+Epoch 29, [95.010000], time: 3.187030 sec
+Epoch 30, [95.020000], time: 3.325045 sec
+Epoch 31, [95.020000], time: 2.965155 sec
+Epoch 32, [95.030000], time: 2.928220 sec
+Epoch 33, [95.060000], time: 2.965973 sec
+Epoch 34, [95.120000], time: 2.992003 sec
+Epoch 35, [95.140000], time: 3.554348 sec
+Epoch 36, [95.150000], time: 3.197144 sec
+Epoch 37, [95.190000], time: 3.034788 sec
+Epoch 38, [95.180000], time: 2.963449 sec
+Epoch 39, [95.170000], time: 3.015731 sec
 */
