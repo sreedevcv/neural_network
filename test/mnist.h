@@ -10,10 +10,10 @@ https://github.com/takafumihoriuchi/MNIST_for_C
 #include <string.h>
 
 // set appropriate path for data
-#define TRAIN_IMAGE "./test/archive/train-images.idx3-ubyte"
-#define TRAIN_LABEL "./test/archive/train-labels.idx1-ubyte"
-#define TEST_IMAGE "./test/archive/t10k-images.idx3-ubyte"
-#define TEST_LABEL "./test/archive/t10k-labels.idx1-ubyte"
+#define TRAIN_IMAGE "./archive/train-images-idx3-ubyte"
+#define TRAIN_LABEL "./archive/train-labels-idx1-ubyte"
+#define TEST_IMAGE "./archive/t10k-images-idx3-ubyte"
+#define TEST_LABEL "./archive/t10k-labels-idx1-ubyte"
 
 #define SIZE 784 // 28*28
 #define NUM_TRAIN 60000
@@ -66,7 +66,7 @@ void read_mnist_char(char *file_path, int num_data, int len_info, int arr_n, uns
     unsigned char *ptr;
 
     if ((fd = open(file_path, O_RDONLY)) == -1) {
-        fprintf(stderr, "couldn't open image file");
+        fprintf(stderr, "couldn't open   image file: %s\n", file_path);
         exit(-1);
     }
     

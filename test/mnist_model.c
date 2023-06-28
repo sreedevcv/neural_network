@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include "mnist.h"
 #include "../src/mlp.h"
 
@@ -75,7 +77,46 @@ void convert_to_matrix(int train_size, int test_size, dataset *test, dataset *tr
     *train = _train;
 }
 
+void download_mnist_dataset() {
+    int curl_pid, gzip_pid, status;
+    char *base_url = "http://yann.lecun.com/exdb/mnist/";
+    char *fileNames[] = {"train-images-idx3-ubyte", "train-labels-idx1-ubyte",
+                        "t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte"};
+    char name[100];
+    char url[100];
+
+
+    for(int i = 0; i < 4; i++) {
+        sprintf(name, "./archive/%s", fileNames[i]);
+
+        if((access(name, F_OK)) != 0) {
+            printf("%s does not exist\n", name);
+            sprintf(url, "%s%s.gz", base_url, fileNames[i]);
+            strcat(name, ".gz");
+
+            curl_pid = fork();
+            if (curl_pid == 0) {
+                printf("Downloading %s\n", url);
+                execl("/usr/bin/curl", "curl", url, "--output", name, NULL);
+            }
+            else 
+                wait(&status);
+
+            gzip_pid = fork();
+
+            if(gzip_pid == 0) {
+                printf("Unzipping %s\n", name);
+                execl("/usr/bin/gzip", "gzip", "-d", name, NULL);
+            }
+            else 
+                wait(&status);
+
+        }
+    }
+}
+
 int main() {
+    download_mnist_dataset();
 	load_mnist();
     srand(time(0));
     int layers[] = {784, 30, 10};
@@ -86,8 +127,8 @@ int main() {
     printf("Loaded mnist dataset\n");
 
 
-//     network_stochastic_gradient_descent(net, train, 40, 50, 1.0, test, mnist_evaluate);
-    network_stochastic_gradient_descent(net, train, 4, 30, 3.0, test, mnist_evaluate);
+    network_stochastic_gradient_descent(net, train, 40, 50, 1.0, test, mnist_evaluate);
+    // network_stochastic_gradient_descent(net, train, 4, 30, 3.0, test, mnist_evaluate);
 
     // matrix_print(network_feed_forward(net, test.x[100]), "test");
     // matrix_print(test.y[2], "result");
