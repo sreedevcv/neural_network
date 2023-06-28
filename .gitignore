@@ -1,6 +1,9 @@
 .vscode/
 .kdev4/
-archive/
+archive/train-images-idx3-ubyte
+archive/train-labels-idx1-ubyte
+archive/t10k-images-idx3-ubyte
+archive/t10k-labels-idx1-ubyte
 mt
 a.out
 network.ipynb
