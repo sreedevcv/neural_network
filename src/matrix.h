@@ -16,6 +16,7 @@ void matrix_scalar_multiply(matrix a, double scalar, matrix b);
 void matrix_multiply(matrix a, matrix b, matrix c);
 void matrix_dot(matrix a, matrix b, matrix out);
 void matrix_transpose(matrix in, matrix out);
+void matrix_apply(double (*func) (double), matrix in, matrix out);
 
 void matrix_sigmoid(matrix in, matrix out);
 void matrix_sigmoid_prime(matrix in, matrix out);

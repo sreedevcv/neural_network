@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include "mnist.h"
@@ -38,6 +39,8 @@ double mnist_evaluate(network net, dataset test) {
     return (double) accuracy / test.size;
 }
 
+
+// Loads the dataset test and train with mnist images
 void convert_to_matrix(int train_size, int test_size, dataset *test, dataset *train) {
     dataset _train, _test;
     _train.size = train_size;
@@ -77,6 +80,9 @@ void convert_to_matrix(int train_size, int test_size, dataset *test, dataset *tr
     *train = _train;
 }
 
+/* Checks if the mnist dataset exixts If not, downloads them using curl 
+ * and unzips them using gzip
+*/
 void download_mnist_dataset() {
     int curl_pid, gzip_pid, status;
     char *base_url = "http://yann.lecun.com/exdb/mnist/";
@@ -115,12 +121,21 @@ void download_mnist_dataset() {
     }
 }
 
+double sigmoid(double num) {
+    return 1.0 /  (1.0 + exp(-num));
+}
+
+double sigmoid_prime(double num) {
+    double epow = exp(-num);
+    return epow / pow(1.0 + epow, 2.0);
+}
+
 int main() {
     download_mnist_dataset();
 	load_mnist();
     srand(time(0));
     int layers[] = {784, 30, 10};
-    network net = network_create(layers, 3, matrix_sigmoid, matrix_sigmoid_prime);
+    network net = network_create(layers, 3, sigmoid, sigmoid_prime);
     int train_size = 60000, test_size = 10000;
     dataset test, train;
     convert_to_matrix(train_size, test_size, &test, &train);

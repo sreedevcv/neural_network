@@ -218,3 +218,21 @@ void matrix_random(matrix m, float start, float end) {
         }
     }
 }
+
+/* Applies the given func() to all values in the input matrix */
+void matrix_apply(double (*func) (double), matrix in, matrix out) {
+    if(in.row != out.row || in.col != out.col) {
+        printf("Incorrect matrix dimensions [sigmoid_prime]\n");
+        printf("[%d %d] [%d %d]\n", in.row, in.col, out.row, out.col);
+        exit(1);
+    }
+    if(in.values == NULL || out.values == NULL) {
+        printf("Matrices shoulb not be null [sigmoid_prime]");
+        exit(1);
+    }
+
+    for(int i = 0; i < in.row; i++) {
+        for(int j = 0; j < in.col; j++)
+            out.values[i][j] = func(in.values[i][j]);
+    }
+}

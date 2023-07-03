@@ -3,7 +3,7 @@
 
 #include "matrix.h"
 
-network network_create(int *layers, int count, void (*activation) (matrix, matrix), void (*activation_prime) (matrix, matrix));
+network network_create(int *layers, int count, double (*activation) (double), double (*activation_prime) (double));
 matrix network_feed_forward(network net, matrix input);
 network network_backpropogate(network net, matrix x, matrix y);
 

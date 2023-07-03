@@ -15,8 +15,8 @@ typedef struct _dataset {
 typedef struct _network {
     int layer_count, *layers;                           /* Number of nuerons in eac layer */
     matrix *biases, *weights;                           /* Biases and Weights of the network */
-    void (*activation) (matrix in, matrix out);         /* Activation function to be used */
-    void (*activation_prime) (matrix in, matrix out);   /* Derivative of the activation function */
+    double (*activation) (double num);                  /* Activation function to be used */
+    double (*activation_prime) (double num);            /* Derivative of the activation function */
 } network;
 
 #endif

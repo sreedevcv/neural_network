@@ -14,7 +14,7 @@ matrix *N_W;
 matrix *ZS;
 
 /* Create a mlp neural netwrok */
-network network_create(int *layers, int count, void (*activation) (matrix, matrix), void (*activation_prime) (matrix, matrix)) {
+network network_create(int *layers, int count, double (*activation) (double), double (*activation_prime) (double)) {
     network net;
     net.layer_count = count;
     net.layers = layers;
@@ -43,7 +43,7 @@ matrix network_feed_forward(network net, matrix input) {
         out = ACTIVATIONS[i + 1];
         matrix_multiply(net.weights[i], ACTIVATIONS[i], out);
         matrix_add(out, net.biases[i], out);
-        net.activation(out, out);
+        matrix_apply(net.activation, out, out);
     }
 
     return out;
@@ -66,14 +66,14 @@ void network_backpropogate(network net, matrix x, matrix y) {
     for (int i = 0; i < net.layer_count - 1; i++) {
         matrix_multiply(net.weights[i], ACTIVATIONS[i], ZS[i]);
         matrix_add(ZS[i], net.biases[i], ZS[i]);
-        net.activation(ZS[i], ACTIVATIONS[i + 1]);
+        matrix_apply(net.activation, ZS[i], ACTIVATIONS[i + 1]);
     }
 
     /* Calculates delta
     * delta = cost_derivative(final_activation, y) * sigmoid_pirme(final_z)
     */
     cost_derivative(ACTIVATIONS[net.layer_count - 1], y, NABLA_B[net.layer_count - 2]);
-    net.activation_prime(ZS[net.layer_count - 2], temp);
+    matrix_apply(net.activation_prime, ZS[net.layer_count - 2], temp);
     matrix_dot(NABLA_B[net.layer_count - 2], temp, NABLA_B[net.layer_count - 2]);
     matrix_free(temp);
 
@@ -85,7 +85,7 @@ void network_backpropogate(network net, matrix x, matrix y) {
 
     for(int i = net.layer_count - 3; i >= 0; i--) {
         temp = TRNPS_WEIGHTS[i + 1];
-        net.activation_prime(ZS[i], ZS[i]);
+        matrix_apply(net.activation_prime, ZS[i], ZS[i]);
         matrix_transpose(net.weights[i + 1], temp);
         matrix_multiply(temp, delta, NABLA_B[i]);
         matrix_dot(NABLA_B[i], ZS[i], NABLA_B[i]);
